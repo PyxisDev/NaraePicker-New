@@ -1,0 +1,17 @@
+<resources>
+    <string-array name="com_adobe_image_editor_crop_labels">
+        <item>정사각형</item>
+        <item>3:2</item>
+        <item>2:4</item>
+        <item>직사각형</item>
+    </string-array>
+
+    <string-array name="com_adobe_image_editor_crop_values">
+        <item>1:1</item>
+        <item>3:2</item>
+        <item>2:4</item>
+        <item>6:2</item>
+    </string-array>
+
+    <integer name="com_adobe_image_editor_crop_selected">1</integer>
+</resources>
