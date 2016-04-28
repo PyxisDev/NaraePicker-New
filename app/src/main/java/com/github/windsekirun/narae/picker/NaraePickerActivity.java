@@ -1,6 +1,5 @@
 package com.github.windsekirun.narae.picker;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -94,90 +93,93 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         }
         return super.onOptionsItemSelected(item);
     }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAMERA_OUTPUT && resultCode == Activity.RESULT_OK) {
-            String imageFilePath = null;
-            if (new File(cameraPicPath).exists()) {
-                imageFilePath = cameraPicPath;
-            }
-            Uri imageUri = Uri.parse(imageFilePath);
-            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
-            startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
-        } else if (requestCode == GALLERY_OUTPUT) {
-            Uri imageUri = IntentUtils.getPickImageResultUri(data);
-            if (imageUri != null) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CAMERA_OUTPUT) {
+                String imageFilePath = null;
+                if (new File(cameraPicPath).exists()) {
+                    imageFilePath = cameraPicPath;
+                }
+                Uri imageUri = Uri.parse(imageFilePath);
                 Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
                 startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
-            } else {
-                if (cameraPicPath != null) {
-                    Uri imageUri2 = Uri.parse(cameraPicPath);
-                    Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+            } else if (requestCode == GALLERY_OUTPUT) {
+                Uri imageUri = IntentUtils.getPickImageResultUri(data);
+                if (imageUri != null) {
+                    Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
                     startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
                 } else {
-                    Toast.makeText(NaraePickerActivity.this, "파일을 찾지 못했습니다!", Toast.LENGTH_SHORT).show();
+                    if (cameraPicPath != null) {
+                        Uri imageUri2 = Uri.parse(cameraPicPath);
+                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                        startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+                    } else {
+                        Toast.makeText(NaraePickerActivity.this, "파일을 찾지 못했습니다!", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        } else if (requestCode == CAMERA_GALLERY_AVAIRY) {
-            Uri editedImageUri = data.getData();
-            toSendList.add(editedImageUri.toString());
+            } else if (requestCode == CAMERA_GALLERY_AVAIRY) {
+                Uri editedImageUri = data.getData();
+                toSendList.add(editedImageUri.toString());
 
-            Intent intent = new Intent();
-            intent.putStringArrayListExtra("images", toSendList);
-            setResult(FINISH_ALL_WORK, intent);
-            finish();
-        } else {
-            switch (requestCode) {
-                case 4:
-                    Uri editedImageUri = data.getData();
-                    toSendList.add(editedImageUri.toString());
-                    if (fileList.size() != 1) {
-                        Uri imageUri2 = Uri.parse(fileList.get(1));
-                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                        startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 1);
-                    } else {
+                Intent intent = new Intent();
+                intent.putStringArrayListExtra("images", toSendList);
+                setResult(FINISH_ALL_WORK, intent);
+                finish();
+            } else {
+                switch (requestCode) {
+                    case 4:
+                        Uri editedImageUri = data.getData();
+                        toSendList.add(editedImageUri.toString());
+                        if (fileList.size() != 1) {
+                            Uri imageUri2 = Uri.parse(fileList.get(1));
+                            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                            startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 1);
+                        } else {
+                            Intent intent = new Intent();
+                            intent.putStringArrayListExtra("images", toSendList);
+                            setResult(FINISH_ALL_WORK, intent);
+                            finish();
+                        }
+                        break;
+                    case 5:
+                        Uri editedImageUri2 = data.getData();
+                        toSendList.add(editedImageUri2.toString());
+                        if (fileList.size() != 2) {
+                            Uri imageUri2 = Uri.parse(fileList.get(2));
+                            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                            startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 2);
+                        } else {
+                            Intent intent = new Intent();
+                            intent.putStringArrayListExtra("images", toSendList);
+                            setResult(FINISH_ALL_WORK, intent);
+                            finish();
+                        }
+                        break;
+                    case 6:
+                        Uri editedImageUri3 = data.getData();
+                        toSendList.add(editedImageUri3.toString());
+                        if (fileList.size() != 3) {
+                            Uri imageUri2 = Uri.parse(fileList.get(3));
+                            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                            startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 3);
+                        } else {
+                            Intent intent = new Intent();
+                            intent.putStringArrayListExtra("images", toSendList);
+                            setResult(FINISH_ALL_WORK, intent);
+                            finish();
+                        }
+                        break;
+                    case 7:
+                        Uri editedImageUri4 = data.getData();
+                        toSendList.add(editedImageUri4.toString());
                         Intent intent = new Intent();
                         intent.putStringArrayListExtra("images", toSendList);
                         setResult(FINISH_ALL_WORK, intent);
                         finish();
-                    }
-                    break;
-                case 5:
-                    Uri editedImageUri2 = data.getData();
-                    toSendList.add(editedImageUri2.toString());
-                    if (fileList.size() != 2) {
-                        Uri imageUri2 = Uri.parse(fileList.get(2));
-                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                        startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 2);
-                    } else {
-                        Intent intent = new Intent();
-                        intent.putStringArrayListExtra("images", toSendList);
-                        setResult(FINISH_ALL_WORK, intent);
-                        finish();
-                    }
-                    break;
-                case 6:
-                    Uri editedImageUri3 = data.getData();
-                    toSendList.add(editedImageUri3.toString());
-                    if (fileList.size() != 3) {
-                        Uri imageUri2 = Uri.parse(fileList.get(3));
-                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                        startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 3);
-                    } else {
-                        Intent intent = new Intent();
-                        intent.putStringArrayListExtra("images", toSendList);
-                        setResult(FINISH_ALL_WORK, intent);
-                        finish();
-                    }
-                    break;
-                case 7:
-                    Uri editedImageUri4 = data.getData();
-                    toSendList.add(editedImageUri4.toString());
-                    Intent intent = new Intent();
-                    intent.putStringArrayListExtra("images", toSendList);
-                    setResult(FINISH_ALL_WORK, intent);
-                    finish();
-                    break;
+                        break;
+                }
             }
         }
     }
