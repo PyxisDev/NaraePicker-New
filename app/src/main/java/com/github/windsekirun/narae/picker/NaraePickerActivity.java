@@ -1,7 +1,10 @@
 package com.github.windsekirun.narae.picker;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,7 +22,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.bumptech.glide.Glide;
+import com.github.windsekirun.narae.picker.util.ImageHolder;
+import com.github.windsekirun.narae.picker.util.ImageItem;
+import com.github.windsekirun.narae.picker.util.IntentUtils;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.palette_dream_ui_typeface_library.PaletteDREAMUI;
 
@@ -27,14 +34,17 @@ import java.io.File;
 import java.util.ArrayList;
 
 @SuppressWarnings("ConstantConditions")
-public class MainActivity extends AppCompatActivity {
+public class NaraePickerActivity extends AppCompatActivity implements PickerConstants {
     Toolbar toolbar;
     RecyclerView list;
 
     GridLayoutManager mLayoutManager;
     ArrayList<Pair<ImageItem, Boolean>> itemSet;
     ArrayList<String> fileList = new ArrayList<>();
+    ArrayList<String> toSendList = new ArrayList<>();
     ImageGridAdapter adapter;
+
+    String cameraPicPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void toolbarSetting() {
         toolbar.setTitle("미디어를 선택하세요.");
-        toolbar.setBackgroundColor(Material.getMaterialLightBlueColor(500));
-        toolbar.setTitleTextColor(Material.getWhite());
+        toolbar.setBackgroundColor(0xff03A9F4);
+        toolbar.setTitleTextColor(0xffffffff);
         setSupportActionBar(toolbar);
     }
 
@@ -71,11 +81,105 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_done:
+                if (fileList.size() > 0) {
+                    Uri imageUri2 = Uri.parse(fileList.get(0));
+                    Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                    startActivityForResult(imageEditorIntent, SELECT_AVAIRY);
+                } else {
+                    Toast.makeText(NaraePickerActivity.this, "선택한 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                }
                 break;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_OUTPUT && resultCode == Activity.RESULT_OK) {
+            String imageFilePath = null;
+            if (new File(cameraPicPath).exists()) {
+                imageFilePath = cameraPicPath;
+            }
+            Uri imageUri = Uri.parse(imageFilePath);
+            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
+            startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+        } else if (requestCode == GALLERY_OUTPUT) {
+            Uri imageUri = IntentUtils.getPickImageResultUri(data);
+            if (imageUri != null) {
+                Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
+                startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+            } else {
+                if (cameraPicPath != null) {
+                    Uri imageUri2 = Uri.parse(cameraPicPath);
+                    Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                    startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+                } else {
+                    Toast.makeText(NaraePickerActivity.this, "파일을 찾지 못했습니다!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else if (requestCode == CAMERA_GALLERY_AVAIRY) {
+            Uri editedImageUri = data.getData();
+            toSendList.add(editedImageUri.toString());
+
+            Intent intent = new Intent();
+            intent.putStringArrayListExtra("images", toSendList);
+            setResult(FINISH_ALL_WORK, intent);
+            finish();
+        } else {
+            switch (requestCode) {
+                case 4:
+                    Uri editedImageUri = data.getData();
+                    toSendList.add(editedImageUri.toString());
+                    if (fileList.size() != 1) {
+                        Uri imageUri2 = Uri.parse(fileList.get(1));
+                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                        startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 1);
+                    } else {
+                        Intent intent = new Intent();
+                        intent.putStringArrayListExtra("images", toSendList);
+                        setResult(FINISH_ALL_WORK, intent);
+                        finish();
+                    }
+                    break;
+                case 5:
+                    Uri editedImageUri2 = data.getData();
+                    toSendList.add(editedImageUri2.toString());
+                    if (fileList.size() != 2) {
+                        Uri imageUri2 = Uri.parse(fileList.get(2));
+                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                        startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 2);
+                    } else {
+                        Intent intent = new Intent();
+                        intent.putStringArrayListExtra("images", toSendList);
+                        setResult(FINISH_ALL_WORK, intent);
+                        finish();
+                    }
+                    break;
+                case 6:
+                    Uri editedImageUri3 = data.getData();
+                    toSendList.add(editedImageUri3.toString());
+                    if (fileList.size() != 3) {
+                        Uri imageUri2 = Uri.parse(fileList.get(3));
+                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                        startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 3);
+                    } else {
+                        Intent intent = new Intent();
+                        intent.putStringArrayListExtra("images", toSendList);
+                        setResult(FINISH_ALL_WORK, intent);
+                        finish();
+                    }
+                    break;
+                case 7:
+                    Uri editedImageUri4 = data.getData();
+                    toSendList.add(editedImageUri4.toString());
+                    Intent intent = new Intent();
+                    intent.putStringArrayListExtra("images", toSendList);
+                    setResult(FINISH_ALL_WORK, intent);
+                    finish();
+                    break;
+            }
+        }
     }
 
     @SuppressWarnings({"Convert2streamapi", "ConstantConditions"})
@@ -85,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            // 전체 경로 파악
             Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     new String[]{MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATA},
                     null, null, MediaStore.Images.Media.DATE_ADDED);
@@ -101,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
 
             cursor.close();
 
-            // 전체 경로 기반으로 각각의 이미지 로드
             for (String albumName : albumNameList) {
                 File file;
                 Cursor cursor2 = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Images.Media.DATA},
@@ -161,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                     Pair<ImageItem, Boolean> newData = new Pair<>(itemSet.get(position).first, true);
                     itemSet.set(position, newData);
                 } else {
-                    Toast.makeText(MainActivity.this, "최대 업로드 수를 초과했습니다!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NaraePickerActivity.this, "최대 업로드 수를 초과했습니다!", Toast.LENGTH_SHORT).show();
                 }
             }
             adapter.notifyItemChanged(position);
@@ -191,21 +293,30 @@ public class MainActivity extends AppCompatActivity {
             if (data.imagePath.equals("camera")) {
                 holder.check.setVisibility(View.GONE);
                 holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
-                holder.thumbnail.setImageDrawable(new IconicsDrawable(MainActivity.this, PaletteDREAMUI.Icon.Palette_camera).color(Material.getWhite()).sizeDp(48));
+                holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_camera).color(0xffffffff).sizeDp(48));
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // 카메라로부터 데이터 가져오기
+                        Intent intent = new Intent();
+                        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                        cameraPicPath = IntentUtils.getGeneratedPicPath();
+                        File targetFile = new File(cameraPicPath);
+                        if (!targetFile.canWrite()) {
+                            File targetDirectory = new File(cameraPicPath.substring(0, cameraPicPath.lastIndexOf(File.separator)));
+                            targetDirectory.mkdirs();
+                        }
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(targetFile));
+                        startActivityForResult(intent, CAMERA_OUTPUT);
                     }
                 });
             } else if (data.imagePath.equals("gallery")) {
                 holder.check.setVisibility(View.GONE);
                 holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
-                holder.thumbnail.setImageDrawable(new IconicsDrawable(MainActivity.this, PaletteDREAMUI.Icon.Palette_gallery).color(Material.getWhite()).sizeDp(48));
+                holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_gallery).color(0xffffffff).sizeDp(48));
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // 갤러리로부터 데이터 가져오기
+                        startActivityForResult(IntentUtils.getPickImageChooserIntent(getPackageManager()), GALLERY_OUTPUT);
                     }
                 });
             } else {
@@ -214,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
                 holder.itemView.setOnClickListener(new ItemClickListener(position, holder.check));
                 File file = new File(data.imagePath);
                 holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                Glide.with(MainActivity.this).load(file).thumbnail(0.5f).into(holder.thumbnail);
+                Glide.with(NaraePickerActivity.this).load(file).thumbnail(0.5f).into(holder.thumbnail);
                 if (dataSet.get(position).second) {
                     holder.check.setImageResource(R.drawable.check_ok);
                 } else {
@@ -226,27 +337,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return dataSet.size();
-        }
-    }
-
-
-    public class ImageItem {
-        public String imagePath;
-
-        public ImageItem(String imagePath) {
-            this.imagePath = imagePath;
-        }
-    }
-
-
-    public class ImageHolder extends RecyclerView.ViewHolder {
-        public ImageView thumbnail;
-        public ImageView check;
-
-        public ImageHolder(View itemView) {
-            super(itemView);
-            thumbnail = (ImageView) itemView.findViewById(R.id.img_thumbnail);
-            check = (ImageView) itemView.findViewById(R.id.img_check);
         }
     }
 }
