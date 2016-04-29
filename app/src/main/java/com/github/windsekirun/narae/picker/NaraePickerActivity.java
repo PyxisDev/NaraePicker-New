@@ -1,12 +1,17 @@
 package com.github.windsekirun.narae.picker;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.adobe.creativesdk.aviary.AdobeImageIntent;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.github.windsekirun.narae.picker.util.ImageHolder;
 import com.github.windsekirun.narae.picker.util.ImageItem;
@@ -32,7 +39,7 @@ import com.mikepenz.palette_dream_ui_typeface_library.PaletteDREAMUI;
 import java.io.File;
 import java.util.ArrayList;
 
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings({"ConstantConditions", "Convert2Lambda"})
 public class NaraePickerActivity extends AppCompatActivity implements PickerConstants {
     Toolbar toolbar;
     RecyclerView list;
@@ -44,6 +51,10 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     ImageGridAdapter adapter;
 
     String cameraPicPath;
+
+    String[] toGrantPermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+    int PERMISSION_ACCEPT = 84;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +71,11 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
 
         toolbarSetting();
 
-        new LoadAllGalleryList().execute();
+        if (isGrantPermission()) {
+            new LoadAllGalleryList().execute();
+        } else {
+            Toast.makeText(NaraePickerActivity.this, "권한이 부여되지 않았습니다.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void toolbarSetting() {
@@ -181,6 +196,75 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                         break;
                 }
             }
+        }
+    }
+
+    public boolean isGrantPermission() {
+        boolean toReturn;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                // 일부 권한이라도 통과되지 않은 상태임
+                // 따라서 따로 요청함
+                toReturn = requestPermissions();
+            } else {
+                toReturn = true;
+            }
+        } else {
+            toReturn = true;
+        }
+        return toReturn;
+    }
+
+    public boolean requestPermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            // 요청 다이얼로그 보여줘야 함
+            new MaterialDialog.Builder(this)
+                    .title("권한 요청")
+                    .content("갤러리 기능을 실행하기 위해서 카메라, 내장 메모리 로드 / 저장 권한이 필요합니다.")
+                    .positiveText("부여")
+                    .negativeText("취소")
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            ActivityCompat.requestPermissions(NaraePickerActivity.this, toGrantPermission, PERMISSION_ACCEPT);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(this, toGrantPermission, PERMISSION_ACCEPT);
+        }
+        return false;
+    }
+
+    public boolean verifyPermissions(int[] grantResults) {
+        if(grantResults.length < 1){
+            return false;
+        }
+
+
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_ACCEPT) {
+            if (verifyPermissions(grantResults)) {
+                Toast.makeText(NaraePickerActivity.this, "권한 부여에 성공하였습니다.", Toast.LENGTH_SHORT).show();
+                new LoadAllGalleryList().execute();
+            } else {
+                Toast.makeText(NaraePickerActivity.this, "권한 부여에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
