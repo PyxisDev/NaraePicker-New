@@ -1,6 +1,7 @@
 package com.github.windsekirun.narae.picker;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,11 +19,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -39,6 +43,7 @@ import com.mikepenz.palette_dream_ui_typeface_library.PaletteDREAMUI;
 import java.io.File;
 import java.util.ArrayList;
 
+
 @SuppressWarnings({"ConstantConditions", "Convert2Lambda"})
 public class NaraePickerActivity extends AppCompatActivity implements PickerConstants {
     Toolbar toolbar;
@@ -52,6 +57,14 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
 
     String cameraPicPath;
 
+    int CAMERA_OUTPUT = 1;
+    int GALLERY_OUTPUT = 2;
+    int CAMERA_GALLERY_AVAIRY = 3;
+    int SELECT_AVAIRY = 4;
+    int FINISH_ALL_WORK = 72;
+
+    public static final String GETTING_IMAGES = "GETTING_IMAGE";
+
     String[] toGrantPermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
     int PERMISSION_ACCEPT = 84;
@@ -59,7 +72,11 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_picker);
+
+        int theme = getIntent().getIntExtra(THEME, 0);
+
+        setTheme(theme);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         list = (RecyclerView) findViewById(R.id.list);
@@ -74,20 +91,20 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         if (isGrantPermission()) {
             new LoadAllGalleryList().execute();
         } else {
-            Toast.makeText(NaraePickerActivity.this, "권한이 부여되지 않았습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NaraePickerActivity.this, R.string.no_grant_permission, Toast.LENGTH_SHORT).show();
         }
     }
 
     public void toolbarSetting() {
-        toolbar.setTitle("미디어를 선택하세요.");
-        toolbar.setBackgroundColor(0xff03A9F4);
+        toolbar.setTitle(R.string.select_image);
+        toolbar.setBackgroundColor(getPrimaryColor());
         toolbar.setTitleTextColor(0xffffffff);
         setSupportActionBar(toolbar);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.menu_picker, menu);
         return true;
     }
 
@@ -100,7 +117,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                     Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
                     startActivityForResult(imageEditorIntent, SELECT_AVAIRY);
                 } else {
-                    Toast.makeText(NaraePickerActivity.this, "선택한 이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NaraePickerActivity.this, R.string.no_select_image, Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -131,17 +148,13 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                         Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
                         startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
                     } else {
-                        Toast.makeText(NaraePickerActivity.this, "파일을 찾지 못했습니다!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NaraePickerActivity.this, R.string.file_not_found, Toast.LENGTH_SHORT).show();
                     }
                 }
             } else if (requestCode == CAMERA_GALLERY_AVAIRY) {
                 Uri editedImageUri = data.getData();
                 toSendList.add(editedImageUri.toString());
-
-                Intent intent = new Intent();
-                intent.putStringArrayListExtra("images", toSendList);
-                setResult(FINISH_ALL_WORK, intent);
-                finish();
+                sendImages();
             } else {
                 switch (requestCode) {
                     case 4:
@@ -152,10 +165,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                             Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
                             startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 1);
                         } else {
-                            Intent intent = new Intent();
-                            intent.putStringArrayListExtra("images", toSendList);
-                            setResult(FINISH_ALL_WORK, intent);
-                            finish();
+                            sendImages();
                         }
                         break;
                     case 5:
@@ -166,10 +176,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                             Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
                             startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 2);
                         } else {
-                            Intent intent = new Intent();
-                            intent.putStringArrayListExtra("images", toSendList);
-                            setResult(FINISH_ALL_WORK, intent);
-                            finish();
+                            sendImages();
                         }
                         break;
                     case 6:
@@ -180,19 +187,13 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                             Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
                             startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 3);
                         } else {
-                            Intent intent = new Intent();
-                            intent.putStringArrayListExtra("images", toSendList);
-                            setResult(FINISH_ALL_WORK, intent);
-                            finish();
+                            sendImages();
                         }
                         break;
                     case 7:
                         Uri editedImageUri4 = data.getData();
                         toSendList.add(editedImageUri4.toString());
-                        Intent intent = new Intent();
-                        intent.putStringArrayListExtra("images", toSendList);
-                        setResult(FINISH_ALL_WORK, intent);
-                        finish();
+                        sendImages();
                         break;
                 }
             }
@@ -224,10 +225,10 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                 ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             // 요청 다이얼로그 보여줘야 함
             new MaterialDialog.Builder(this)
-                    .title("권한 요청")
-                    .content("갤러리 기능을 실행하기 위해서 카메라, 내장 메모리 로드 / 저장 권한이 필요합니다.")
-                    .positiveText("부여")
-                    .negativeText("취소")
+                    .title(R.string.permission_dialog_title)
+                    .content(R.string.permission_dialog_content)
+                    .positiveText(R.string.permission_dialog_grant)
+                    .negativeText(R.string.permission_dialog_cancel)
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -258,14 +259,21 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_ACCEPT) {
             if (verifyPermissions(grantResults)) {
-                Toast.makeText(NaraePickerActivity.this, "권한 부여에 성공하였습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NaraePickerActivity.this, R.string.grant_permission_success, Toast.LENGTH_SHORT).show();
                 new LoadAllGalleryList().execute();
             } else {
-                Toast.makeText(NaraePickerActivity.this, "권한 부여에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NaraePickerActivity.this, R.string.grant_permission_fail, Toast.LENGTH_SHORT).show();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    public void sendImages() {
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra(GETTING_IMAGES, toSendList);
+        setResult(FINISH_ALL_WORK, intent);
+        finish();
     }
 
     @SuppressWarnings({"Convert2streamapi", "ConstantConditions"})
@@ -349,7 +357,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                     Pair<ImageItem, Boolean> newData = new Pair<>(itemSet.get(position).first, true);
                     itemSet.set(position, newData);
                 } else {
-                    Toast.makeText(NaraePickerActivity.this, "최대 업로드 수를 초과했습니다!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NaraePickerActivity.this, R.string.over_image_limit, Toast.LENGTH_SHORT).show();
                 }
             }
             adapter.notifyItemChanged(position);
@@ -369,7 +377,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         @Override
         public ImageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             c = parent.getContext();
-            View v = LayoutInflater.from(c).inflate(R.layout.row_image, parent, false);
+            View v = LayoutInflater.from(c).inflate(R.layout.row_picker, parent, false);
             return new ImageHolder(v);
         }
 
@@ -379,6 +387,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
             if (data.imagePath.equals("camera")) {
                 holder.check.setVisibility(View.GONE);
                 holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                holder.thumbnail.setBackgroundResource(R.color.dark);
                 holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_camera).color(0xffffffff).sizeDp(48));
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -398,6 +407,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
             } else if (data.imagePath.equals("gallery")) {
                 holder.check.setVisibility(View.GONE);
                 holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                holder.thumbnail.setBackgroundResource(R.color.dark);
                 holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_gallery).color(0xffffffff).sizeDp(48));
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -425,4 +435,34 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
             return dataSet.size();
         }
     }
+
+    public int getPrimaryColor() {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
+        return value.data;
+    }
+
+    public int getPrimaryBoldColor() {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimaryDark, value, true);
+        return value.data;
+    }
+
+    public void setStatusNavBarColor(Activity activity) {
+        setStatusNavBarColor(activity.getWindow(), getPrimaryBoldColor());
+    }
+
+    public void setStatusNavBarColor(Activity activity, int color) {
+        setStatusNavBarColor(activity.getWindow(), color);
+    }
+
+    public void setStatusNavBarColor(Window w, int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            w.setStatusBarColor(color);
+            w.setNavigationBarColor(color);
+        }
+    }
+
 }
