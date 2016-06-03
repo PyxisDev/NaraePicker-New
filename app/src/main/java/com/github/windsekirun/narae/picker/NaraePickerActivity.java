@@ -43,7 +43,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-@SuppressWarnings({"ConstantConditions", "Convert2Lambda", "SimplifiableIfStatement"})
+@SuppressWarnings({"ConstantConditions", "Convert2Lambda", "SimplifiableIfStatement", "AndroidNonConstantResIdsInSwitch"})
 public class NaraePickerActivity extends AppCompatActivity implements PickerConstants {
     Toolbar toolbar;
     RecyclerView list;
@@ -110,20 +110,18 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_done:
-                if (fileList.size() > 0) {
-                    Uri imageUri2 = Uri.parse(fileList.get(0));
-                    Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                    startActivityForResult(imageEditorIntent, SELECT_AVAIRY);
-                } else {
-                    Toast.makeText(NaraePickerActivity.this, R.string.no_select_image, Toast.LENGTH_SHORT).show();
-                }
-                break;
-            default:
-                break;
+        if (item.getItemId() == R.id.menu_done) {
+            if (fileList.size() > 0) {
+                Uri imageUri2 = Uri.parse(fileList.get(0));
+                Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
+                startActivityForResult(imageEditorIntent, SELECT_AVAIRY);
+            } else {
+                Toast.makeText(NaraePickerActivity.this, R.string.no_select_image, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
