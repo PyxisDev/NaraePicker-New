@@ -1,5 +1,29 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'naraepicker-new'
+
+    publishedGroupId = 'com.github.windsekirun.narae.picker'
+    libraryName = 'NaraePicker'
+    artifact = 'naraepicker-new'
+
+    libraryDescription = 'A MultiImagePicker on Android'
+
+    siteUrl = 'https://github.com/WindSekirun/NaraePicker-New'
+    gitUrl = 'https://github.com/WindSekirun/NaraePicker-New.git'
+
+    libraryVersion = '1.0.0'
+
+    developerId = 'WindSekirun'
+    developerName = 'Dong Gil, Seo'
+    developerEmail = 'h.mina.moe@gmail.com'
+
+    licenseName = 'MIT License'
+    licenseUrl = 'https://opensource.org/licenses/MIT'
+    allLicenses = ["MIT"]
+}
+
 /* 1) Apply the Gradle Retrolambda Plugin */
 apply plugin: 'me.tatarka.retrolambda'
 
@@ -52,4 +76,7 @@ dependencies {
         transitive = true
     }
 
+    // Place it at the end of the file
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
 }

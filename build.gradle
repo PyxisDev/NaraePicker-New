@@ -12,6 +12,8 @@ buildscript {
         // in the individual module build.gradle files
         /* 1) Add the Gradle Retrolambda Plugin */
         classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
 
     }
 }
