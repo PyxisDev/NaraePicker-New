@@ -1,7 +1,6 @@
 package com.github.windsekirun.narae.picker;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,7 +32,7 @@ import android.widget.Toast;
 import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.bumptech.glide.Glide;
+import com.github.windsekirun.narae.picker.util.FrescoUtils;
 import com.github.windsekirun.narae.picker.util.ImageHolder;
 import com.github.windsekirun.narae.picker.util.ImageItem;
 import com.github.windsekirun.narae.picker.util.IntentUtils;
@@ -44,7 +43,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-@SuppressWarnings({"ConstantConditions", "Convert2Lambda"})
+@SuppressWarnings({"ConstantConditions", "Convert2Lambda", "SimplifiableIfStatement"})
 public class NaraePickerActivity extends AppCompatActivity implements PickerConstants {
     Toolbar toolbar;
     RecyclerView list;
@@ -65,7 +64,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
 
     public static final String GETTING_IMAGES = "GETTING_IMAGE";
 
-    String[] toGrantPermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    String[] toGrantPermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
     int PERMISSION_ACCEPT = 84;
 
@@ -77,6 +76,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         int theme = getIntent().getIntExtra(THEME, 0);
 
         setTheme(theme);
+        setStatusNavBarColor(getWindow(), getPrimaryBoldColor());
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         list = (RecyclerView) findViewById(R.id.list);
@@ -242,7 +242,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     }
 
     public boolean verifyPermissions(int[] grantResults) {
-        if(grantResults.length < 1){
+        if (grantResults.length < 1) {
             return false;
         }
 
@@ -365,7 +365,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     }
 
 
-    @SuppressWarnings("Convert2Lambda")
+    @SuppressWarnings({"Convert2Lambda", "deprecation"})
     public class ImageGridAdapter extends RecyclerView.Adapter<ImageHolder> {
         ArrayList<Pair<ImageItem, Boolean>> dataSet;
         Context c;
@@ -384,49 +384,56 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         @Override
         public void onBindViewHolder(ImageHolder holder, int position) {
             ImageItem data = dataSet.get(position).first;
-            if (data.imagePath.equals("camera")) {
-                holder.check.setVisibility(View.GONE);
-                holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
-                holder.thumbnail.setBackgroundResource(R.color.dark);
-                holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_camera).color(0xffffffff).sizeDp(48));
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent();
-                        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-                        cameraPicPath = IntentUtils.getGeneratedPicPath();
-                        File targetFile = new File(cameraPicPath);
-                        if (!targetFile.canWrite()) {
-                            File targetDirectory = new File(cameraPicPath.substring(0, cameraPicPath.lastIndexOf(File.separator)));
-                            targetDirectory.mkdirs();
+            switch (data.imagePath) {
+                case "camera":
+                    holder.check.setVisibility(View.GONE);
+                    holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                    holder.thumbnail.setBackgroundResource(R.color.dark);
+                    holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_camera).color(0xffffffff).sizeDp(48));
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @SuppressWarnings("ResultOfMethodCallIgnored")
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent();
+                            intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                            cameraPicPath = IntentUtils.getGeneratedPicPath();
+                            File targetFile = new File(cameraPicPath);
+                            if (!targetFile.canWrite()) {
+                                File targetDirectory = new File(cameraPicPath.substring(0, cameraPicPath.lastIndexOf(File.separator)));
+                                targetDirectory.mkdirs();
+                            }
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(targetFile));
+                            startActivityForResult(intent, CAMERA_OUTPUT);
                         }
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(targetFile));
-                        startActivityForResult(intent, CAMERA_OUTPUT);
+                    });
+                    break;
+                case "gallery":
+                    holder.check.setVisibility(View.GONE);
+                    holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                    holder.thumbnail.setBackgroundResource(R.color.dark);
+                    holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_gallery).color(0xffffffff).sizeDp(48));
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivityForResult(IntentUtils.getPickImageChooserIntent(getPackageManager()), GALLERY_OUTPUT);
+                        }
+                    });
+                    break;
+                default:
+                    holder.check.setVisibility(View.VISIBLE);
+                    holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    holder.itemView.setOnClickListener(new ItemClickListener(position, holder.check));
+                    File file = new File(data.imagePath);
+
+                    holder.thumbnail.setImageURI(Uri.fromFile(file));
+                    holder.thumbnail.setHierarchy(FrescoUtils.setCenterCrop(holder.thumbnail));
+
+                    if (dataSet.get(position).second) {
+                        holder.check.setImageResource(R.drawable.check_ok);
+                    } else {
+                        holder.check.setImageResource(R.drawable.check_blank);
                     }
-                });
-            } else if (data.imagePath.equals("gallery")) {
-                holder.check.setVisibility(View.GONE);
-                holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
-                holder.thumbnail.setBackgroundResource(R.color.dark);
-                holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_gallery).color(0xffffffff).sizeDp(48));
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivityForResult(IntentUtils.getPickImageChooserIntent(getPackageManager()), GALLERY_OUTPUT);
-                    }
-                });
-            } else {
-                holder.check.setVisibility(View.VISIBLE);
-                holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                holder.itemView.setOnClickListener(new ItemClickListener(position, holder.check));
-                File file = new File(data.imagePath);
-                holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                Glide.with(NaraePickerActivity.this).load(file).thumbnail(0.5f).into(holder.thumbnail);
-                if (dataSet.get(position).second) {
-                    holder.check.setImageResource(R.drawable.check_ok);
-                } else {
-                    holder.check.setImageResource(R.drawable.check_blank);
-                }
+                    break;
             }
         }
 
@@ -446,14 +453,6 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         TypedValue value = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimaryDark, value, true);
         return value.data;
-    }
-
-    public void setStatusNavBarColor(Activity activity) {
-        setStatusNavBarColor(activity.getWindow(), getPrimaryBoldColor());
-    }
-
-    public void setStatusNavBarColor(Activity activity, int color) {
-        setStatusNavBarColor(activity.getWindow(), color);
     }
 
     public void setStatusNavBarColor(Window w, int color) {
