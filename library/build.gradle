@@ -1,0 +1,56 @@
+apply plugin: 'com.android.library'
+
+/* 1) Apply the Gradle Retrolambda Plugin */
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    /* 2) Compile for Java 1.8 or greater */
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    /* 3) Exclude duplicate licenses */
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/DEPENDENCIES'
+        pickFirst 'AndroidManifest.xml'
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.adobe.creativesdk.foundation:auth:0.9.7'
+    compile 'com.jakewharton:butterknife:8.0.0'
+    compile 'com.adobe.creativesdk:image:4.4.8'
+    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.mikepenz:iconics-core:2.5.11@aar'
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.8@aar') {
+        transitive = true
+    }
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+
+}
