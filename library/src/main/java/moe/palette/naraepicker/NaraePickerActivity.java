@@ -27,14 +27,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
-import com.mikepenz.iconics.IconicsDrawable;
-import com.mikepenz.palette_dream_ui_typeface_library.PaletteDREAMUI;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     String cameraPicPath;
 
     public static int CAMERA_OUTPUT = 1;
-    public static  int GALLERY_OUTPUT = 2;
+    public static int GALLERY_OUTPUT = 2;
     public static int CAMERA_GALLERY_AVAIRY = 3;
     public static int SELECT_AVAIRY = 4;
     public static int FINISH_ALL_WORK = 72;
@@ -377,7 +376,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                     holder.check.setVisibility(View.GONE);
                     holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
                     holder.thumbnail.setBackgroundResource(R.color.dark);
-                    holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_camera).color(0xffffffff).sizeDp(48));
+                    holder.thumbnail.setImageResource(R.drawable.ic_action_camera);
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @SuppressWarnings("ResultOfMethodCallIgnored")
                         @Override
@@ -398,8 +397,9 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                 case "gallery":
                     holder.check.setVisibility(View.GONE);
                     holder.thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                    holder.thumbnail.setImageResource(R.drawable.ic_action_image);
                     holder.thumbnail.setBackgroundResource(R.color.dark);
-                    holder.thumbnail.setImageDrawable(new IconicsDrawable(NaraePickerActivity.this, PaletteDREAMUI.Icon.Palette_gallery).color(0xffffffff).sizeDp(48));
+
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

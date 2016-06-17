@@ -4,8 +4,6 @@ import android.app.Application;
 
 import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
 import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
-import com.mikepenz.iconics.Iconics;
-import com.mikepenz.palette_dream_ui_typeface_library.PaletteDREAMUI;
 
 public class MainApplication extends Application implements IAviaryClientCredentials {
 
@@ -17,8 +15,6 @@ public class MainApplication extends Application implements IAviaryClientCredent
     public void onCreate() {
         super.onCreate();
         AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
-        Iconics.init(getApplicationContext());
-        Iconics.registerFont(new PaletteDREAMUI());
     }
 
     @Override
