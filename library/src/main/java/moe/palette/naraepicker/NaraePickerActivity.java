@@ -15,7 +15,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -27,7 +26,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.adobe.creativesdk.aviary.AdobeImageIntent;
@@ -41,7 +39,6 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"ConstantConditions", "Convert2Lambda", "SimplifiableIfStatement", "AndroidNonConstantResIdsInSwitch"})
 public class NaraePickerActivity extends AppCompatActivity implements PickerConstants {
-    Toolbar toolbar;
     RecyclerView list;
 
     GridLayoutManager mLayoutManager;
@@ -76,13 +73,14 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
             setStatusNavBarColor(getWindow(), getPrimaryBoldColor());
         }
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
         list = (RecyclerView) findViewById(R.id.list);
 
         list.setHasFixedSize(true);
 
         mLayoutManager = new GridLayoutManager(this, 3);
         list.setLayoutManager(mLayoutManager);
+
+        getSupportActionBar().setTitle(R.string.select_image);
 
         if (isGrantPermission()) {
             new LoadAllGalleryList().execute();
