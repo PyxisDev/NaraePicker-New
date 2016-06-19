@@ -28,7 +28,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -51,8 +50,6 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
 
     public static int CAMERA_OUTPUT = 1;
     public static int GALLERY_OUTPUT = 2;
-    public static int CAMERA_GALLERY_AVAIRY = 3;
-    public static int SELECT_AVAIRY = 4;
     public static int FINISH_ALL_WORK = 72;
 
     public static final String GETTING_IMAGES = "GETTING_IMAGE";
@@ -80,12 +77,12 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
         mLayoutManager = new GridLayoutManager(this, 3);
         list.setLayoutManager(mLayoutManager);
 
-        getSupportActionBar().setTitle(R.string.select_image);
+        getSupportActionBar().setTitle(R.string.naraepicker_select_image);
 
         if (isGrantPermission()) {
             new LoadAllGalleryList().execute();
         } else {
-            Toast.makeText(NaraePickerActivity.this, R.string.no_grant_permission, Toast.LENGTH_SHORT).show();
+            Toast.makeText(NaraePickerActivity.this, R.string.naraepicker_no_grant_permission, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -99,11 +96,10 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_done) {
             if (fileList.size() > 0) {
-                Uri imageUri2 = Uri.parse(fileList.get(0));
-                Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                startActivityForResult(imageEditorIntent, SELECT_AVAIRY);
+                toSendList.addAll(fileList);
+                sendImages();
             } else {
-                Toast.makeText(NaraePickerActivity.this, R.string.no_select_image, Toast.LENGTH_SHORT).show();
+                Toast.makeText(NaraePickerActivity.this, R.string.naraepicker_no_select_image, Toast.LENGTH_SHORT).show();
             }
             return true;
         } else {
@@ -120,66 +116,20 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                     imageFilePath = cameraPicPath;
                 }
                 Uri imageUri = Uri.parse(imageFilePath);
-                Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
-                startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+                toSendList.add(imageUri.toString());
+                sendImages();
             } else if (requestCode == GALLERY_OUTPUT) {
                 Uri imageUri = IntentUtils.getPickImageResultUri(data);
                 if (imageUri != null) {
-                    Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri).build();
-                    startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+                    toSendList.add(imageUri.toString());
+                    sendImages();
                 } else {
                     if (cameraPicPath != null) {
                         Uri imageUri2 = Uri.parse(cameraPicPath);
-                        Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                        startActivityForResult(imageEditorIntent, CAMERA_GALLERY_AVAIRY);
+                        toSendList.add(imageUri2.toString());
                     } else {
-                        Toast.makeText(NaraePickerActivity.this, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NaraePickerActivity.this, R.string.naraepicker_file_not_found, Toast.LENGTH_SHORT).show();
                     }
-                }
-            } else if (requestCode == CAMERA_GALLERY_AVAIRY) {
-                Uri editedImageUri = data.getData();
-                toSendList.add(editedImageUri.toString());
-                sendImages();
-            } else {
-                switch (requestCode) {
-                    case 4:
-                        Uri editedImageUri = data.getData();
-                        toSendList.add(editedImageUri.toString());
-                        if (fileList.size() != 1) {
-                            Uri imageUri2 = Uri.parse(fileList.get(1));
-                            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                            startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 1);
-                        } else {
-                            sendImages();
-                        }
-                        break;
-                    case 5:
-                        Uri editedImageUri2 = data.getData();
-                        toSendList.add(editedImageUri2.toString());
-                        if (fileList.size() != 2) {
-                            Uri imageUri2 = Uri.parse(fileList.get(2));
-                            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                            startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 2);
-                        } else {
-                            sendImages();
-                        }
-                        break;
-                    case 6:
-                        Uri editedImageUri3 = data.getData();
-                        toSendList.add(editedImageUri3.toString());
-                        if (fileList.size() != 3) {
-                            Uri imageUri2 = Uri.parse(fileList.get(3));
-                            Intent imageEditorIntent = new AdobeImageIntent.Builder(this).setData(imageUri2).build();
-                            startActivityForResult(imageEditorIntent, SELECT_AVAIRY + 3);
-                        } else {
-                            sendImages();
-                        }
-                        break;
-                    case 7:
-                        Uri editedImageUri4 = data.getData();
-                        toSendList.add(editedImageUri4.toString());
-                        sendImages();
-                        break;
                 }
             }
         }
@@ -188,7 +138,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     public boolean isGrantPermission() {
         boolean toReturn;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 23) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -210,10 +160,10 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                 ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             // 요청 다이얼로그 보여줘야 함
             new MaterialDialog.Builder(this)
-                    .title(R.string.permission_dialog_title)
-                    .content(R.string.permission_dialog_content)
-                    .positiveText(R.string.permission_dialog_grant)
-                    .negativeText(R.string.permission_dialog_cancel)
+                    .title(R.string.naraepicker_permission_dialog_title)
+                    .content(R.string.naraepicker_permission_dialog_content)
+                    .positiveText(R.string.naraepicker_permission_dialog_grant)
+                    .negativeText(R.string.naraepicker_permission_dialog_cancel)
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
@@ -244,10 +194,10 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_ACCEPT) {
             if (verifyPermissions(grantResults)) {
-                Toast.makeText(NaraePickerActivity.this, R.string.grant_permission_success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(NaraePickerActivity.this, R.string.naraepicker_grant_permission_success, Toast.LENGTH_SHORT).show();
                 new LoadAllGalleryList().execute();
             } else {
-                Toast.makeText(NaraePickerActivity.this, R.string.grant_permission_fail, Toast.LENGTH_SHORT).show();
+                Toast.makeText(NaraePickerActivity.this, R.string.naraepicker_grant_permission_fail, Toast.LENGTH_SHORT).show();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -342,7 +292,7 @@ public class NaraePickerActivity extends AppCompatActivity implements PickerCons
                     Pair<ImageItem, Boolean> newData = new Pair<>(itemSet.get(position).first, true);
                     itemSet.set(position, newData);
                 } else {
-                    Toast.makeText(NaraePickerActivity.this, R.string.over_image_limit, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NaraePickerActivity.this, R.string.naraepicker_over_image_limit, Toast.LENGTH_SHORT).show();
                 }
             }
             adapter.notifyItemChanged(position);

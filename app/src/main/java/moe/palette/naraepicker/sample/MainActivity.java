@@ -1,7 +1,6 @@
 package moe.palette.naraepicker.sample;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -37,16 +36,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, NaraePickerActivity.class);
-                startActivityForResult(i, NaraePickerActivity.FINISH_ALL_WORK);
+                startActivityForResult(i, 72);
             }
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == NaraePickerActivity.FINISH_ALL_WORK) {
+        if (requestCode == 72) {
             if (data != null) {
-                ArrayList<String> imageList = data.getStringArrayListExtra(NaraePickerActivity.GETTING_IMAGES);
+                ArrayList<String> imageList = data.getStringArrayListExtra("GETTING_IMAGE");
                 for (String image : imageList) {
                     Log.d("NaraePicker", " path: " + image);
                 }

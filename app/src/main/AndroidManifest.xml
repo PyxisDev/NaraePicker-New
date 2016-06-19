@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name="moe.palette.naraepicker.NaraePickerActivity"
-            android:label="@string/select_image"
+            android:label="@string/naraepicker_select_image"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
     </application>
 

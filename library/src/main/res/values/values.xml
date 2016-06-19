@@ -1,9 +1,9 @@
 <resources>
     <string-array name="com_adobe_image_editor_crop_labels">
-        <item>정사각형</item>
+        <item>@string/naraepicker_square</item>
         <item>3:2</item>
         <item>2:4</item>
-        <item>직사각형</item>
+        <item>@string/naraepicker_narrow</item>
     </string-array>
 
     <string-array name="com_adobe_image_editor_crop_values">

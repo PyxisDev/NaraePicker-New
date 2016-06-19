@@ -2,9 +2,7 @@
     package="moe.palette.naraepicker">
 
     <application
-        android:allowBackup="true"
-        android:name=".MainApplication"
-        android:supportsRtl="true">
+        android:name=".MainApplication">
 
     </application>
 

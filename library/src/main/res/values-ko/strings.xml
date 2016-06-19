@@ -1,15 +1,16 @@
 <resources>
-    <string name="app_name">NaraePicker-New</string>
-    <string name="done">완료</string>
-    <string name="no_select_image">이미지가 선택되지 않았습니다.</string>
-    <string name="file_not_found">파일을 찾지 못했습니다.</string>
-    <string name="over_image_limit">첨부할 수 있는 이미지의 한계를 넘었습니다.</string>
-    <string name="select_image">이미지를 선택하세요.</string>
-    <string name="grant_permission_success">권한 부여에 성공하였습니다.</string>
-    <string name="grant_permission_fail">권한 부여에 실패하였습니다.</string>
-    <string name="permission_dialog_title">권한 요청</string>
-    <string name="permission_dialog_content">갤러리 기능을 실행하기 위해서 카메라, 내장 메모리 로드 / 저장 권한이 필요합니다.</string>
-    <string name="permission_dialog_grant">부여</string>
-    <string name="permission_dialog_cancel">취소</string>
+    <string name="naraepicker_done">완료</string>
+    <string name="naraepicker_no_select_image">이미지가 선택되지 않았습니다.</string>
+    <string name="naraepicker_file_not_found">파일을 찾지 못했습니다.</string>
+    <string name="naraepicker_over_image_limit">첨부할 수 있는 이미지의 한계를 넘었습니다.</string>
+    <string name="naraepicker_select_image">이미지를 선택하세요.</string>
+    <string name="naraepicker_grant_permission_success">권한 부여에 성공하였습니다.</string>
+    <string name="naraepicker_grant_permission_fail">권한 부여에 실패하였습니다.</string>
+    <string name="naraepicker_permission_dialog_title">권한 요청</string>
+    <string name="naraepicker_permission_dialog_content">갤러리 기능을 실행하기 위해서 카메라, 내장 메모리 로드 / 저장 권한이 필요합니다.</string>
+    <string name="naraepicker_permission_dialog_grant">부여</string>
+    <string name="naraepicker_permission_dialog_cancel">취소</string>
     <string name="no_grant_permission">권한이 부여되지 않았습니다.</string>
+    <string name="naraepicker_square">정사각형</string>
+    <string name="naraepicker_narrow">직사각형</string>
 </resources>
