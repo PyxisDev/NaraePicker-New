@@ -1,9 +1,7 @@
 # NaraePicker-New
-NaraePicker, Open Source Library with Multi Gallery Select Function
+NaraePicker, Multi Gallery Select Function with Adobe Image Editor
 
 ## Usages
-Import NaraePicker.aar which can download [Release Page]
-
 Add Activity in your AndroidManifest.xml
 
     <activity android:name="moe.palette.naraepicker.NaraePickerActivity"
