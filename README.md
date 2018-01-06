@@ -1,3 +1,7 @@
+## Deprecated!
+This source has deprecated. Please use [NaraeImagePicker](https://github.com/WindSekirun/NaraeImagePicker) instead.
+
+
 # NaraePicker-New
 NaraePicker, Multi Gallery Select Function with Adobe Image Editor
 
